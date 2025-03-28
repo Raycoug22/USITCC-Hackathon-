@@ -1,17 +1,35 @@
-const express = require("express");
-const path = require("path");
-
+const express = require('express');
+const path = require('path');
 const app = express();
-const PORT = 3000; // You can change the port if needed
+const port = 3000;
 
-// Serve static files (CSS, JS, Images)
-app.use(express.static(path.join(__dirname, "public")));
+// Set EJS as the view engine
+app.set('view engine', 'ejs');
 
-// Route to serve the homepage
-app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "public", "Main.ejs"));
+// Set the views directory
+app.set('views', path.join(__dirname, 'views'));
+
+// Serve static files (if any)
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Define routes
+app.get('/', (req, res) => {
+    res.render('Main'); // Renders views/Main.ejs
 });
 
-app.listen(PORT, () => {
-    console.log(`Server is running at http://localhost:${PORT}`);
+app.get('/login', (req, res) => {
+    res.render('login'); // Assuming you have a login.ejs
+});
+
+app.get('/events', (req, res) => {
+    res.render('events'); // Assuming you have an events.ejs
+});
+
+app.get('/home', (req, res) => {
+    res.render('home'); // Assuming you have a home.ejs
+});
+
+// Start the server
+app.listen(port, () => {
+    console.log(`Server is running at http://localhost:${port}`);
 });
