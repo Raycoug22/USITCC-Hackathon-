@@ -1,12 +1,13 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 from sql import get_db_connection
+import os
 
-app = Flask(__name__, template_folder='../frontend/views', static_folder='../frontend/assets')
+app = Flask(__name__)
 CORS(app)
 
-# ---------- Auth ----------
-@app.route('/register', methods=['POST'])
+# ---------- AUTH ----------
+@app.route('/api/register', methods=['POST'])
 def register():
     data = request.json
     username = data['username']
@@ -26,7 +27,7 @@ def register():
         cursor.close()
         conn.close()
 
-@app.route('/login', methods=['POST'])
+@app.route('/api/login', methods=['POST'])
 def login():
     data = request.json
     email = data['email']
@@ -39,7 +40,7 @@ def login():
         return jsonify({'message': 'Login successful', 'user_id': user['User_ID']}), 200
     return jsonify({'error': 'Invalid credentials'}), 401
 
-@app.route('/update-profile', methods=['PUT'])
+@app.route('/api/update-profile', methods=['PUT'])
 def update_profile():
     data = request.json
     user_id = data['user_id']
@@ -62,7 +63,7 @@ def update_profile():
         cursor.close()
         conn.close()
 
-@app.route('/get-matches/<int:user_id>', methods=['GET'])
+@app.route('/api/get-matches/<int:user_id>', methods=['GET'])
 def get_matches(user_id):
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -80,8 +81,8 @@ def get_matches(user_id):
     conn.close()
     return jsonify({'matches': matches})
 
-# ---------- Events ----------
-@app.route('/events', methods=['GET'])
+# ---------- EVENTS ----------
+@app.route('/api/events', methods=['GET'])
 def get_events():
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -91,7 +92,7 @@ def get_events():
     conn.close()
     return jsonify(events)
 
-@app.route('/events/<int:event_id>', methods=['GET'])
+@app.route('/api/events/<int:event_id>', methods=['GET'])
 def get_event(event_id):
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -101,7 +102,7 @@ def get_event(event_id):
     conn.close()
     return jsonify(event)
 
-@app.route('/events/rsvp', methods=['POST'])
+@app.route('/api/events/rsvp', methods=['POST'])
 def rsvp_event():
     data = request.json
     user_id = data['user_id']
@@ -119,8 +120,8 @@ def rsvp_event():
         cursor.close()
         conn.close()
 
-# ---------- Groups ----------
-@app.route('/groups', methods=['GET'])
+# ---------- GROUPS ----------
+@app.route('/api/groups', methods=['GET'])
 def get_groups():
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -130,7 +131,7 @@ def get_groups():
     conn.close()
     return jsonify(groups)
 
-@app.route('/groups/<int:group_id>', methods=['GET'])
+@app.route('/api/groups/<int:group_id>', methods=['GET'])
 def get_group(group_id):
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -140,7 +141,7 @@ def get_group(group_id):
     conn.close()
     return jsonify(group)
 
-@app.route('/groups/join', methods=['POST'])
+@app.route('/api/groups/join', methods=['POST'])
 def join_group():
     data = request.json
     user_id = data['user_id']
@@ -158,8 +159,8 @@ def join_group():
         cursor.close()
         conn.close()
 
-# ---------- Forums ----------
-@app.route('/forums/<int:group_id>', methods=['GET'])
+# ---------- FORUMS ----------
+@app.route('/api/forums/<int:group_id>', methods=['GET'])
 def get_forums(group_id):
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -169,7 +170,7 @@ def get_forums(group_id):
     conn.close()
     return jsonify(forums)
 
-@app.route('/forums/post', methods=['POST'])
+@app.route('/api/forums/post', methods=['POST'])
 def post_forum():
     data = request.json
     topic = data['topic']
@@ -188,7 +189,7 @@ def post_forum():
         cursor.close()
         conn.close()
 
-@app.route('/forums/reply', methods=['POST'])
+@app.route('/api/forums/reply', methods=['POST'])
 def reply_forum():
     data = request.json
     forum_id = data['forum_id']
@@ -207,8 +208,8 @@ def reply_forum():
         cursor.close()
         conn.close()
 
-# ---------- Interests ----------
-@app.route('/interests', methods=['GET'])
+# ---------- INTERESTS ----------
+@app.route('/api/interests', methods=['GET'])
 def get_interests():
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -218,7 +219,7 @@ def get_interests():
     conn.close()
     return jsonify(interests)
 
-@app.route('/interests/add', methods=['POST'])
+@app.route('/api/interests/add', methods=['POST'])
 def add_interest():
     data = request.json
     user_id = data['user_id']
@@ -235,11 +236,6 @@ def add_interest():
     finally:
         cursor.close()
         conn.close()
-
-# ---------- Landing ----------
-@app.route('/')
-def landing():
-    return render_template('pages/landing.ejs')
 
 # ---------- Run App ----------
 if __name__ == '__main__':
