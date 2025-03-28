@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from sql import get_db_connection
@@ -240,3 +241,6 @@ def add_interest():
 # ---------- Run App ----------
 if __name__ == '__main__':
     app.run(debug=True)
+=======
+
+>>>>>>> 2ebe61ea94b7d11e8decf98c48087140b00b7e7e
