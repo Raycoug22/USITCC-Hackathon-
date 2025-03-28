@@ -137,4 +137,143 @@ header {
       transform: translateY(0);
     }
   }
+  .auth-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 70vh;
+    background: linear-gradient(to bottom, #fff, #fef5f2);
+  }
   
+  .auth-box {
+    background-color: white;
+    padding: 2rem 3rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+    text-align: center;
+    max-width: 400px;
+    width: 100%;
+  }
+  
+  .auth-box h2 {
+    margin-bottom: 1.5rem;
+  }
+  
+  .form-group {
+    margin-bottom: 1rem;
+    text-align: left;
+  }
+  
+  input[type="email"],
+  input[type="password"] {
+    width: 100%;
+    padding: 0.75rem;
+    margin-top: 0.25rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+  }
+  
+  .btn-primary {
+    background-color: #f79463;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    margin-top: 1rem;
+    cursor: pointer;
+  }
+  
+  .btn-primary:hover {
+    background-color: #f47a3c;
+  }
+  
+  .auth-switch {
+    margin-top: 1rem;
+  }
+  .dashboard-wrapper {
+    display: flex;
+    min-height: 80vh;
+  }
+  
+  .sidebar {
+    width: 220px;
+    background-color: #f79463;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 1rem;
+  }
+  
+  .sidebar-logo img {
+    width: 120px;
+    margin-bottom: 1.5rem;
+  }
+  
+  .sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding: 0 1rem;
+  }
+  
+  .sidebar-nav a {
+    padding: 0.75rem;
+    text-decoration: none;
+    color: white;
+    font-weight: 500;
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+  }
+  
+  .sidebar-nav a:hover,
+  .sidebar-nav a.active {
+    background-color: #f47a3c;
+  }
+  
+  .dashboard-main {
+    flex: 1;
+    padding: 2rem;
+    background: linear-gradient(to bottom, #fff, #fef5f2);
+  }
+  
+  .dashboard-main h1 {
+    margin-bottom: 1rem;
+  }
+  
+  .dashboard-section {
+    margin-top: 2rem;
+  }
+  
+  .dashboard-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  
+  .card {
+    background-color: #fff;
+    padding: 1rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    width: 250px;
+  }
+  
+  .card h3 {
+    margin-top: 0;
+  }
+  
+  .card button {
+    margin-top: 0.5rem;
+    background-color: #f79463;
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  
+  .card button:hover {
+    background-color: #f47a3c;
+  }

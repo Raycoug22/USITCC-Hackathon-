@@ -1,1 +1,85 @@
+<%- include('../partials/header') %>
+
+<div class="dashboard-wrapper">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <img src="/assets/Interest_logo.png" alt="InterestLink Logo" />
+    </div>
+    <nav class="sidebar-nav">
+      <a href="/dashboard" class="active">Dashboard</a>
+      <a href="/explorer">Interest Explorer</a>
+      <a href="/groups">Groups</a>
+      <a href="/forums">Forums</a>
+      <a href="/events">Events</a>
+      <a href="/messages">Messaging</a>
+      <a href="/settings">Settings</a>
+    </nav>
+  </aside>
+
+  <main class="dashboard-main">
+    <h1>Welcome, <%= user?.username || 'User' %>!</h1>
+    <p>Explore events, join groups, and connect with others who share your interests.</p>
+
+    <!-- Example content blocks -->
+    <section class="dashboard-section">
+      <h2>Upcoming Events</h2>
+      <div id="events-list" class="dashboard-cards">
+        <!-- Events will be rendered here dynamically -->
+      </div>
+    </section>
+
+    <section class="dashboard-section">
+      <h2>Suggested Matches</h2>
+      <div id="matches-list" class="dashboard-cards">
+        <!-- Matches will be rendered here dynamically -->
+      </div>
+    </section>
+  </main>
+</div>
+
+<%- include('../partials/footer') %>
+
+<script>
+  const userId = <%= user?.user_id || 1 %>;
+
+  async function loadEvents() {
+    const res = await fetch('/api/events');
+    const events = await res.json();
+
+    const container = document.getElementById('events-list');
+    container.innerHTML = events.map(event => `
+      <div class="card">
+        <h3>${event.Title}</h3>
+        <p>${event.Description}</p>
+        <button onclick="rsvp(${event.Event_ID})">RSVP</button>
+      </div>
+    `).join('');
+  }
+
+  async function loadMatches() {
+    const res = await fetch(`/api/get-matches/${userId}`);
+    const data = await res.json();
+    const matches = data.matches || [];
+
+    const container = document.getElementById('matches-list');
+    container.innerHTML = matches.map(match => `
+      <div class="card">
+        <h3>${match.Username}</h3>
+        <p>${match.Email}</p>
+      </div>
+    `).join('');
+  }
+
+  async function rsvp(eventId) {
+    await fetch('/api/events/rsvp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: userId, event_id: eventId })
+    });
+    alert('RSVP successful!');
+  }
+
+  loadEvents();
+  loadMatches();
+</script>
 

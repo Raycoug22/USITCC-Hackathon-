@@ -32,10 +32,12 @@ def login():
     data = request.json
     email = data['email']
     password = data['password']
+
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM Users WHERE Email = %s", (email,))
     user = cursor.fetchone()
+
     if user and user['Password'] == password:
         return jsonify({'message': 'Login successful', 'user_id': user['User_ID']}), 200
     return jsonify({'error': 'Invalid credentials'}), 401

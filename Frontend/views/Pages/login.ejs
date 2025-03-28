@@ -19,28 +19,40 @@
 </div>
 
 <%- include('../partials/footer') %>
-
 <script>
-  document.getElementById('loginForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    const email = e.target.email.value;
-    const password = e.target.password.value;
-
-    const response = await fetch('/api/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+    
+      const email = e.target.email.value;
+      const password = e.target.password.value;
+    
+      try {
+        const response = await fetch('/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+    
+        // If login successful and redirected to dashboard
+        if (response.redirected) {
+          window.location.href = response.url;
+          return;
+        }
+    
+        // If response is not redirected, try parsing as JSON
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const data = await response.json();
+          alert(data.error || 'Login failed.');
+        } else {
+          const text = await response.text();
+          console.error('Non-JSON response:', text);
+          alert('Login failed: Non-JSON response received.');
+        }
+    
+      } catch (err) {
+        alert('Error connecting to server: ' + err.message);
+      }
     });
-
-    const data = await response.json();
-
-    if (response.ok) {
-      // Redirect to dashboard or wherever you want
-      window.location.href = '/dashboard';
-    } else {
-      alert(data.error || 'Login failed. Please try again.');
-    }
-  });
-</script>
-
+    </script>
+    

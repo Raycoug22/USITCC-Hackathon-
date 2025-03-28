@@ -1,13 +1,14 @@
 const express = require('express');
 const path = require('path');
 const session = require('express-session');
+const axios = require('axios');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 
 const app = express();
 
-// =======================
+// ==========================
 // 🔧 Middleware Setup
-// =======================
+// ==========================
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
@@ -18,59 +19,83 @@ app.use(session({
   cookie: { secure: false }
 }));
 
-// =======================
-// 📁 EJS View Engine Setup
-// =======================
+// ==========================
+// 🖼️ View Engine (EJS)
+// ==========================
 app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views')); // ✅ FIXED
+app.set('views', path.join(__dirname, 'views'));
 
-
-// =======================
-// 📂 Static Files (Assets, JS)
-// =======================
+// ==========================
+// 📁 Static Assets
+// ==========================
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
-app.use('/server.js', express.static(path.join(__dirname, 'server.js'))); // If needed on front
 
-// =======================
+// ==========================
 // 🔁 Proxy API to Flask
-// =======================
+// ==========================
 app.use('/api', createProxyMiddleware({
   target: 'http://127.0.0.1:5000',
   changeOrigin: true
 }));
 
-// =======================
+// ==========================
 // 🌐 Routes
-// =======================
+// ==========================
 
-// ✅ Landing Page
-app.get('/', (req, res) => {
-  res.render('pages/landing');
+// Landing page
+app.get('/', (req, res) => res.render('pages/landing'));
+
+// Login page
+app.get('/login', (req, res) => res.render('pages/login'));
+
+// Login POST handler (calls Flask API)
+app.post('/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const response = await axios.post('http://127.0.0.1:5000/api/login', {
+      email,
+      password
+    });
+
+    if (response.data && response.data.user_id) {
+      // Store user info in session
+      req.session.user = {
+        user_id: response.data.user_id,
+        username: email.split('@')[0], // default username
+        email
+      };
+
+      return res.redirect('/dashboard');
+    } else {
+      return res.redirect('/login');
+    }
+
+  } catch (err) {
+    console.error('Login failed:', err.message);
+    return res.redirect('/login');
+  }
 });
 
-// ✅ Login Page
-app.get('/login', (req, res) => {
-  res.render('pages/login');
-});
-
-// ✅ Dashboard Page
+// Dashboard (protected)
 app.get('/dashboard', (req, res) => {
-  res.render('pages/dashboard');
+  const user = req.session.user;
+
+  if (!user) return res.redirect('/login');
+
+  res.render('pages/dashboard', { user });
 });
 
-// ✅ Add others like register.ejs when ready
-// app.get('/register', (req, res) => res.render('pages/register'));
-
-// =======================
-// ❌ 404 Fallback
-// =======================
+// ==========================
+// ❌ 404 Handler
+// ==========================
 app.use((req, res) => {
   res.status(404).send('404 - Page not found');
 });
 
-// =======================
-// 🚀 Launch Server
-// =======================
+// ==========================
+// 🚀 Start Server
+// ==========================
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🚀 InterestLink frontend running at: http://localhost:${PORT}`);
