@@ -1,0 +1,163 @@
+<%- include('../partials/header') %>
+
+<div class="explorer-wrapper">
+  <aside class="sidebar">
+    <nav class="sidebar-nav">
+      <a href="/dashboard">Dashboard</a>
+      <a href="/explorer" class="active">Interest Explorer</a>
+      <a href="/groups">Groups</a>
+      <a href="/forums">Forums</a>
+      <a href="/events">Events</a>
+      <a href="/messages">Messaging</a>
+      <a href="/settings">Settings</a>
+    </nav>
+  </aside>
+
+  <main class="explorer-main" data-user-id="<%= user ? user.user_id : 1 %>">
+    <div class="explorer-content">
+      <h1>Explore Your Interests</h1>
+      <p>Click on your favorite topics to add them to your profile!</p>
+
+      <div class="interests-grid">
+        <% const interests = [
+          'Anime', 'Dungeons & Dragons', 'Fortnite', 'Roblox', 'K-pop', 'Taylor Swift',
+          'Marvel', 'Meme Culture', 'Netflix Bingeing', 'AI Art', 'Gaming Setups',
+          'Sustainable Fashion', 'Music Festivals', 'Cosplay', 'Cryptocurrency',
+          'BookTok', 'Streetwear', 'PC Building', 'Streaming', 'Photography',
+          'Astrology', 'Skincare', 'Boba Tea', 'Traveling'
+        ]; %>
+
+        <% interests.forEach(interest => { %>
+          <div class="interest-card">
+            <span><%= interest %></span>
+            <button onclick="addInterest('<%= interest %>')">+ Add</button>
+          </div>
+        <% }); %>
+      </div>
+    </div>
+  </main>
+</div>
+
+<%- include('../partials/footer') %>
+
+<script>
+    let interestsMap = {};
+  
+    // Fetch interests on page load
+    fetch('http://127.0.0.1:5000/api/interests')
+      .then(res => res.json())
+      .then(data => {
+        data.forEach(item => {
+          interestsMap[item.Name] = item.Interest_ID;
+        });
+      });
+  
+    const userId = document.querySelector('.explorer-main').dataset.userId;
+  
+    async function addInterest(interestName) {
+      const interestId = interestsMap[interestName]; // Convert name to ID
+  
+      if (!interestId) return alert("Invalid interest!");
+  
+      try {
+        const response = await fetch('http://127.0.0.1:5000/api/interests/add', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user_id: userId,
+            interest_id: interestId
+          })
+        });
+  
+        const data = await response.json();
+        if (response.ok) {
+          alert(`Added: ${interestName}`);
+        } else {
+          alert(data.error || 'Something went wrong.');
+        }
+      } catch (err) {
+        alert('Error: ' + err.message);
+      }
+    }
+  </script>
+
+<style>
+    .explorer-wrapper {
+      display: flex;
+      min-height: 100vh; /* make full screen height */
+    }
+  
+    .sidebar {
+      width: 220px;
+      background-color: #fa936c;
+      padding: 1rem;
+      color: white;
+    }
+  
+    .sidebar-nav a {
+      display: block;
+      color: white;
+      padding: 10px 0;
+      text-decoration: none;
+    }
+  
+    .sidebar-nav a.active {
+      background-color: #f47e3e;
+      border-radius: 4px;
+      padding-left: 10px;
+    }
+  
+    .explorer-main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center; /* center vertically */
+      padding: 2rem;
+    }
+  
+    .explorer-content {
+      text-align: center;
+      max-width: 960px;
+      width: 100%;
+    }
+  
+    .interests-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 1rem;
+      justify-content: center;
+      margin-top: 2rem;
+    }
+  
+    .interest-card {
+      background: #fff;
+      border: 1px solid #eee;
+      padding: 1rem;
+      text-align: center;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      transition: transform 0.2s ease-in-out;
+    }
+  
+    .interest-card:hover {
+      transform: scale(1.05);
+    }
+  
+    .interest-card button {
+      background-color: #fa936c;
+      border: none;
+      padding: 6px 12px;
+      margin-top: 0.5rem;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  
+    .interest-card button:hover {
+      background-color: #f47e3e;
+    }
+  
+    .interest-card button:active {
+      transform: scale(0.95);
+    }
+  </style>

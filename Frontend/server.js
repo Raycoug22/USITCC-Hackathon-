@@ -45,6 +45,9 @@ app.use('/api', createProxyMiddleware({
 // Landing page
 app.get('/', (req, res) => res.render('pages/landing'));
 
+//register page
+app.get('/register', (req, res) => res.render('pages/register'));
+
 // Login page
 app.get('/login', (req, res) => res.render('pages/login'));
 
@@ -84,6 +87,15 @@ app.get('/dashboard', (req, res) => {
   if (!user) return res.redirect('/login');
 
   res.render('pages/dashboard', { user });
+});
+
+// Interest Explorer (protected)
+app.get('/explorer', (req, res) => {
+  const user = req.session.user;
+
+  if (!user) return res.redirect('/login');
+
+  res.render('pages/explorer', { user });
 });
 
 // ==========================

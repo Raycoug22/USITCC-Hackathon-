@@ -1,0 +1,54 @@
+<%- include('../partials/header') %>
+
+<div class="auth-wrapper">
+  <div class="auth-box">
+    <h2>Create your InterestLink Account</h2>
+    <form id="registerForm">
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" required placeholder="Choose a username" />
+      </div>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required placeholder="Enter your email" />
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required placeholder="Create a password" />
+      </div>
+      <button type="submit" class="btn-primary">Register</button>
+    </form>
+    <p class="auth-switch">Already have an account? <a href="/login">Login</a></p>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>
+
+<script>
+  document.getElementById('registerForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const username = e.target.username.value;
+    const email = e.target.email.value;
+    const password = e.target.password.value;
+
+    try {
+      const response = await fetch('http://127.0.0.1:5000/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, email, password })
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        alert('Registration successful! You can now log in.');
+        window.location.href = '/login';
+      } else {
+        alert(result.error || 'Registration failed.');
+      }
+    } catch (err) {
+      alert('Error connecting to server: ' + err.message);
+    }
+  });
+</script>

@@ -3,7 +3,6 @@
 <div class="dashboard-wrapper">
   <aside class="sidebar">
     <div class="sidebar-logo">
-      <img src="/assets/Interest_logo.png" alt="InterestLink Logo" />
     </div>
     <nav class="sidebar-nav">
       <a href="/dashboard" class="active">Dashboard</a>
@@ -40,7 +39,7 @@
 <%- include('../partials/footer') %>
 
 <script>
-  const userId = <%= user?.user_id || 1 %>;
+   user?.user_id || 1 
 
   async function loadEvents() {
     const res = await fetch('/api/events');
