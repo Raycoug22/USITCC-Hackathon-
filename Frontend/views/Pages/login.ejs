@@ -1,0 +1,46 @@
+<%- include('../partials/header') %>
+
+<div class="auth-wrapper">
+  <div class="auth-box">
+    <h2>Login to InterestLink</h2>
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required placeholder="Enter your email" />
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required placeholder="Enter your password" />
+      </div>
+      <button type="submit" class="btn-primary">Login</button>
+    </form>
+    <p class="auth-switch">Don't have an account? <a href="/register">Sign up</a></p>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>
+
+<script>
+  document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const email = e.target.email.value;
+    const password = e.target.password.value;
+
+    const response = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      // Redirect to dashboard or wherever you want
+      window.location.href = '/dashboard';
+    } else {
+      alert(data.error || 'Login failed. Please try again.');
+    }
+  });
+</script>
+
