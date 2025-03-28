@@ -43,6 +43,20 @@ def login():
         return jsonify({'message': 'Login successful', 'user_id': user['User_ID']}), 200
     return jsonify({'error': 'Invalid credentials'}), 401
 
+@app.route('/api/user-events/<int:user_id>', methods=['GET'])
+def get_user_events(user_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT e.* FROM Events e
+        JOIN Users_Events ue ON e.Event_ID = ue.Event_ID
+        WHERE ue.Users_ID = %s
+    """, (user_id,))
+    events = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return jsonify(events)
+
 @app.route('/api/update-profile', methods=['PUT'])
 def update_profile():
     data = request.json
@@ -66,36 +80,26 @@ def update_profile():
         cursor.close()
         conn.close()
 
-@app.route('/api/change-password', methods=['POST'])
+@app.route('/api/change-password', methods=['PUT'])
 def change_password():
     data = request.json
     user_id = data['user_id']
-    current_password = data['current_password']
-    new_password = data['new_password']
-
+    current = data['current_password']
+    new = data['new_password']
+    
     conn = get_db_connection()
     cursor = conn.cursor()
+    cursor.execute("SELECT Password FROM Users WHERE User_ID = %s", (user_id,))
+    user = cursor.fetchone()
 
-    try:
-        # Validate current password
-        cursor.execute("SELECT Password FROM Users WHERE User_ID = %s", (user_id,))
-        user = cursor.fetchone()
-        if not user or user['Password'] != current_password:
-            return jsonify({'error': 'Current password is incorrect'}), 400
-
-        # Update password
-        cursor.execute("UPDATE Users SET Password = %s WHERE User_ID = %s", (new_password, user_id))
+    if user and user['Password'] == current:
+        cursor.execute("UPDATE Users SET Password = %s WHERE User_ID = %s", (new, user_id))
         conn.commit()
-        return jsonify({'message': 'Password changed successfully'}), 200
+        return jsonify({'message': 'Password updated'}), 200
+    else:
+        return jsonify({'error': 'Current password incorrect'}), 400
 
-    except Exception as e:
-        conn.rollback()
-        return jsonify({'error': str(e)}), 400
 
-    finally:
-        cursor.close()
-        conn.close()
-        
 @app.route('/api/get-matches/<int:user_id>', methods=['GET'])
 def get_matches(user_id):
     conn = get_db_connection()

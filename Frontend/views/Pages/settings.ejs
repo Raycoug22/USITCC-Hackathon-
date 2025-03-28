@@ -21,23 +21,23 @@
         <p><strong>Email:</strong> <%= user.email %></p>
       </div>
 
+      <!-- Profile Update Form -->
       <form id="profile-form">
         <label for="bio">Bio</label>
         <textarea id="bio" placeholder="Tell us about yourself..."></textarea>
-
-        <label for="interests">Select Interests</label>
         <div id="interests-container"></div>
 
         <button type="submit">Update Profile</button>
       </form>
 
+      <!-- Password Change Form -->
       <h2>Change Password</h2>
-      <input type="password" id="current-password" placeholder="Current password">
-      <input type="password" id="new-password" placeholder="New password">
-      <input type="password" id="confirm-password" placeholder="Confirm new password">
-      <button type="button" onclick="changePassword()">Change Password</button>
-
-      </div>
+      <form id="change-password-form">
+        <input type="password" id="current-password" placeholder="Current password" required />
+        <input type="password" id="new-password" placeholder="New password" required />
+        <input type="password" id="confirm-password" placeholder="Confirm new password" required />
+        <button type="submit">Change Password</button>
+      </form>
     </div>
   </main>
 </div>
@@ -47,29 +47,8 @@
 <script>
   const userId = document.querySelector('.settings-main').dataset.userId;
 
-  async function loadInterests() {
-    const res = await fetch('/api/interests');
-    const interests = await res.json();
-    const container = document.getElementById('interests-container');
 
-    interests.forEach(interest => {
-      const checkbox = document.createElement('input');
-      checkbox.type = 'checkbox';
-      checkbox.value = interest.Interest_ID;
-      checkbox.id = `interest-${interest.Interest_ID}`;
-
-      const label = document.createElement('label');
-      label.htmlFor = checkbox.id;
-      label.textContent = interest.Interest_Name;
-
-      const div = document.createElement('div');
-      div.appendChild(checkbox);
-      div.appendChild(label);
-
-      container.appendChild(div);
-    });
-  }
-
+  // Update Profile Form
   document.getElementById('profile-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const bio = document.getElementById('bio').value;
@@ -77,149 +56,153 @@
                           .map(input => parseInt(input.value));
 
     try {
-      const res = await fetch('/api/update-profile', {
+      const res = await fetch('http://127.0.0.1:5000/api/update-profile', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ user_id: parseInt(userId), bio, interests: selected })
       });
 
       const data = await res.json();
-      if (res.ok) alert('Profile updated!');
-      else alert(data.error || 'Failed to update profile.');
+      if (res.ok) {
+        alert('Profile updated!');
+      } else {
+        alert(data.error || 'Failed to update profile.');
+      }
     } catch (err) {
       alert('Error: ' + err.message);
     }
   });
 
-  async function changePassword() {
-    const current = document.getElementById('current-password').value;
-    const newPass = document.getElementById('new-password').value;
-    const confirm = document.getElementById('confirm-password').value;
+  // Change Password Form
+  document.getElementById('change-password-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-    if (newPass !== confirm) return alert('Passwords do not match!');
+    const currentPassword = document.getElementById('current-password').value;
+    const newPassword = document.getElementById('new-password').value;
+    const confirmPassword = document.getElementById('confirm-password').value;
+
+    if (newPassword !== confirmPassword) {
+      alert('New passwords do not match!');
+      return;
+    }
 
     try {
       const res = await fetch('http://127.0.0.1:5000/api/change-password', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user_id: parseInt(userId), current_password: current, new_password: newPass })
+        body: JSON.stringify({
+          user_id: parseInt(userId),
+          current_password: currentPassword,
+          new_password: newPassword
+        })
       });
 
       const data = await res.json();
-      if (res.ok) alert('Password changed successfully!');
-      else alert(data.error || 'Password change failed.');
+      if (res.ok) {
+        alert('Password changed successfully!');
+        document.getElementById('change-password-form').reset();
+      } else {
+        alert(data.error || 'Password change failed.');
+      }
     } catch (err) {
       alert('Error: ' + err.message);
     }
-  }
-
+  });
 
   loadInterests();
 </script>
 
 <style>
-    .settings-wrapper {
-      display: flex;
-      min-height: 100vh;
-      background: #fff;
-    }
-  
-    .sidebar {
-      width: 220px;
-      background-color: #fa936c;
-      padding: 1rem;
-      color: white;
-    }
-  
-    .sidebar-nav a {
-      display: block;
-      color: white;
-      padding: 10px 0;
-      text-decoration: none;
-    }
-  
-    .sidebar-nav a.active {
-      background-color: #f47e3e;
-      border-radius: 4px;
-      padding-left: 10px;
-    }
-  
-    .settings-main {
-      flex: 1;
-      padding: 2.5rem;
-    }
-  
-    .settings-content {
-      max-width: 700px;
-      margin: auto;
-    }
-  
-    .settings-content h1 {
-      margin-bottom: 1rem;
-    }
-  
-    .settings-content p {
-      margin-bottom: 0.5rem;
-    }
-  
-    #profile-form,
-    #password-form {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      margin-top: 1rem;
-      margin-bottom: 2rem;
-    }
-  
-    label {
-      font-weight: bold;
-    }
-  
-    textarea,
-    input[type="text"],
-    input[type="password"] {
-      width: 100%;
-      padding: 0.75rem;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-    }
-  
-    #interests-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-  
-    #interests-container div {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-  
-    button {
-      background-color: #fa936c;
-      color: white;
-      padding: 10px 16px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: bold;
-      width: fit-content;
-    }
-  
-    button:hover {
-      background-color: #f47e3e;
-    }
-  
-    .section-title {
-      font-size: 1.2rem;
-      font-weight: bold;
-      margin-top: 2rem;
-      margin-bottom: 1rem;
-      border-top: 1px solid #eee;
-      padding-top: 1rem;
-    }
-  
+  .settings-wrapper {
+    display: flex;
+    min-height: 100vh;
+    background: #fff;
+  }
 
-  </style>
-  
+  .sidebar {
+    width: 220px;
+    background-color: #fa936c;
+    padding: 1rem;
+    color: white;
+  }
+
+  .sidebar-nav a {
+    display: block;
+    color: white;
+    padding: 10px 0;
+    text-decoration: none;
+  }
+
+  .sidebar-nav a.active {
+    background-color: #f47e3e;
+    border-radius: 4px;
+    padding-left: 10px;
+  }
+
+  .settings-main {
+    flex: 1;
+    padding: 2.5rem;
+  }
+
+  .settings-content {
+    max-width: 700px;
+    margin: auto;
+  }
+
+  .settings-content h1,
+  .settings-content h2 {
+    margin-bottom: 1rem;
+  }
+
+  .user-info p {
+    margin-bottom: 0.5rem;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  label {
+    font-weight: bold;
+  }
+
+  textarea,
+  input[type="text"],
+  input[type="password"] {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+  }
+
+  #interests-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  #interests-container div {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  button {
+    background-color: #fa936c;
+    color: white;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    width: fit-content;
+  }
+
+  button:hover {
+    background-color: #f47e3e;
+  }
+</style>
