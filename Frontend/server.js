@@ -45,13 +45,13 @@ app.use('/api', createProxyMiddleware({
 // Landing page
 app.get('/', (req, res) => res.render('pages/landing'));
 
-//register page
+// Register page
 app.get('/register', (req, res) => res.render('pages/register'));
 
 // Login page
 app.get('/login', (req, res) => res.render('pages/login'));
 
-// Login POST handler (calls Flask API)
+// Login POST handler
 app.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -62,13 +62,11 @@ app.post('/login', async (req, res) => {
     });
 
     if (response.data && response.data.user_id) {
-      // Store user info in session
       req.session.user = {
         user_id: response.data.user_id,
-        username: email.split('@')[0], // default username
+        username: email.split('@')[0],
         email
       };
-
       return res.redirect('/dashboard');
     } else {
       return res.redirect('/login');
@@ -83,20 +81,63 @@ app.post('/login', async (req, res) => {
 // Dashboard (protected)
 app.get('/dashboard', (req, res) => {
   const user = req.session.user;
-
   if (!user) return res.redirect('/login');
-
   res.render('pages/dashboard', { user });
 });
 
 // Interest Explorer (protected)
 app.get('/explorer', (req, res) => {
   const user = req.session.user;
-
   if (!user) return res.redirect('/login');
-
   res.render('pages/explorer', { user });
 });
+
+// Forums (protected)
+app.get('/forums', async (req, res) => {
+  const user = req.session.user;
+  if (!user) return res.redirect('/login');
+
+  try {
+    const response = await axios.get('http://127.0.0.1:5000/api/forums/1'); // Replace 1 with dynamic group ID if needed
+    const forums = response.data || [];
+    res.render('pages/forums', { user, forums });
+  } catch (err) {
+    console.error('Error fetching forums:', err.message);
+    res.render('pages/forums', { user, forums: [] });
+  }
+});
+
+// Groups (protected)
+app.get('/groups', (req, res) => {
+  const user = req.session.user;
+  if (!user) return res.redirect('/login');
+  res.render('pages/groups', { user });
+});
+
+// Events (protected)
+app.get('/events', async (req, res) => {
+  const user = req.session.user;
+  if (!user) return res.redirect('/login');
+
+  try {
+    const response = await axios.get('http://127.0.0.1:5000/api/events');
+    const events = response.data || [];
+
+    res.render('pages/events', { user, events });
+  } catch (err) {
+    console.error('Error fetching events:', err.message);
+    res.render('pages/events', { user, events: [] }); // fallback to empty array
+  }
+});
+
+
+// Settings (protected)
+app.get('/settings', (req, res) => {
+  const user = req.session.user;
+  if (!user) return res.redirect('/login');
+  res.render('pages/settings', { user });
+});
+
 
 // ==========================
 // ❌ 404 Handler

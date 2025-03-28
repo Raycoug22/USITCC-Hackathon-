@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from sql import get_db_connection
 import os
+from flask import request, jsonify
 
 app = Flask(__name__)
 CORS(app)
@@ -65,6 +66,36 @@ def update_profile():
         cursor.close()
         conn.close()
 
+@app.route('/api/change-password', methods=['POST'])
+def change_password():
+    data = request.json
+    user_id = data['user_id']
+    current_password = data['current_password']
+    new_password = data['new_password']
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    try:
+        # Validate current password
+        cursor.execute("SELECT Password FROM Users WHERE User_ID = %s", (user_id,))
+        user = cursor.fetchone()
+        if not user or user['Password'] != current_password:
+            return jsonify({'error': 'Current password is incorrect'}), 400
+
+        # Update password
+        cursor.execute("UPDATE Users SET Password = %s WHERE User_ID = %s", (new_password, user_id))
+        conn.commit()
+        return jsonify({'message': 'Password changed successfully'}), 200
+
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'error': str(e)}), 400
+
+    finally:
+        cursor.close()
+        conn.close()
+        
 @app.route('/api/get-matches/<int:user_id>', methods=['GET'])
 def get_matches(user_id):
     conn = get_db_connection()

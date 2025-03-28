@@ -1,0 +1,165 @@
+<%- include('../partials/header') %>
+
+<div class="events-wrapper">
+  <aside class="sidebar">
+    <nav class="sidebar-nav">
+      <a href="/dashboard">Dashboard</a>
+      <a href="/explorer">Interest Explorer</a>
+      <a href="/groups">Groups</a>
+      <a href="/forums">Forums</a>
+      <a href="/events" class="active">Events</a>
+      <a href="/settings">Settings</a>
+    </nav>
+  </aside>
+
+  <main class="events-main">
+    <div class="events-content">
+      <h1>Upcoming Events</h1>
+      <p>Discover and RSVP to awesome community events!</p>
+
+      <div class="events-container">
+        <% if (events && events.length > 0) { %>
+          <% events.forEach(event => { %>
+            <div class="event-card">
+              <h3><%= event.Title %></h3>
+              <p><strong>Date:</strong> <%= new Date(event.Date).toLocaleDateString() %></p>
+              <p><strong>Location:</strong> <%= event.Location %></p>
+              <p><%= event.Description %></p>
+              <button class="rsvp-btn" data-id="<%= event.Event_ID %>">RSVP</button>
+            </div>
+          <% }); %>
+        <% } else { %>
+          <p>No upcoming events yet.</p>
+        <% } %>
+      </div>
+    </div>
+  </main>
+</div>
+
+<%- include('../partials/footer') %>
+
+<script>
+    const userId = "<%= user.user_id %>"; // treat it as a string
+  
+    async function rsvpEvent(eventId) {
+      try {
+        const res = await fetch('http://127.0.0.1:5000/api/events/rsvp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            user_id: parseInt(userId), // ✅ safely parse to number
+            event_id: eventId 
+          })
+        });
+  
+        const data = await res.json();
+        if (res.ok) {
+          alert('RSVP successful!');
+        } else {
+          alert(data.error || 'RSVP failed.');
+        }
+      } catch (err) {
+        alert('Server error: ' + err.message);
+      }
+    }
+  
+    // Optional: add event listener if using class instead of inline onclick
+    document.querySelectorAll('.rsvp-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const eventId = btn.getAttribute('data-id');
+        rsvpEvent(eventId);
+      });
+    });
+  </script>
+  
+<style>
+  .events-wrapper {
+    display: flex;
+    min-height: 100vh;
+    background: #fff;
+  }
+
+  .sidebar {
+    width: 220px;
+    background-color: #fa936c;
+    padding: 1rem;
+    color: white;
+  }
+
+  .sidebar-nav a {
+    display: block;
+    color: white;
+    padding: 10px 0;
+    text-decoration: none;
+  }
+
+  .sidebar-nav a.active {
+    background-color: #f47e3e;
+    border-radius: 4px;
+    padding-left: 10px;
+  }
+
+  .events-main {
+    flex: 1;
+    padding: 2.5rem 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .events-content {
+    max-width: 960px;
+    width: 100%;
+    text-align: center;
+  }
+
+  .events-content h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .events-content p {
+    color: #555;
+    margin-bottom: 2rem;
+  }
+
+  .events-container {
+    display: grid;
+    gap: 1.5rem;
+    width: 100%;
+  }
+
+  .event-card {
+    background: #fff;
+    padding: 1.2rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    text-align: left;
+  }
+
+  .event-card h3 {
+    font-size: 1.2rem;
+    color: #333;
+    margin-bottom: 0.4rem;
+  }
+
+  .event-card p {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 0.5rem;
+  }
+
+  .event-card button {
+    background-color: #fa936c;
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+
+  .event-card button:hover {
+    background-color: #f47e3e;
+  }
+</style>

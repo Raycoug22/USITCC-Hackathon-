@@ -1,0 +1,170 @@
+<%- include('../partials/header') %>
+
+<div class="forums-wrapper">
+  <aside class="sidebar">
+    <nav class="sidebar-nav">
+      <a href="/dashboard">Dashboard</a>
+      <a href="/explorer">Interest Explorer</a>
+      <a href="/groups">Groups</a>
+      <a href="/forums" class="active">Forums</a>
+      <a href="/events">Events</a>
+      <a href="/settings">Settings</a>
+    </nav>
+  </aside>
+
+  <main class="forums-main" data-user-id="<%= user ? user.user_id : 1 %>">
+    <div class="forums-content">
+      <h1>Community Forums</h1>
+
+      <form id="forum-form">
+        <input type="text" id="topic" placeholder="Start a new topic..." required />
+        <button type="submit">Post</button>
+      </form>
+
+      <div class="forums-container">
+        <% if (forums && forums.length > 0) { %>
+          <% forums.forEach(forum => { %>
+            <div class="forum-card">
+              <h3><%= forum.Topic %></h3>
+              <p>Started by: <%= forum.Created_By %></p>
+            </div>
+          <% }); %>
+        <% } else { %>
+          <p>No forum topics yet.</p>
+        <% } %>
+      </div>
+    </div>
+  </main>
+</div>
+
+<%- include('../partials/footer') %>
+
+<script>
+  const userId = document.querySelector('.forums-main').dataset.userId;
+  const groupId = 1;
+
+  document.getElementById('forum-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const topic = document.getElementById('topic').value.trim();
+    if (!topic) return;
+
+    try {
+      const res = await fetch('http://127.0.0.1:5000/api/forums/post', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ topic, user_id: userId, group_id: groupId })
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        location.reload();
+      } else {
+        alert(data.error || 'Failed to post topic.');
+      }
+    } catch (err) {
+      alert('Server error: ' + err.message);
+    }
+  });
+</script>
+
+<style>
+  .forums-wrapper {
+    display: flex;
+    min-height: 100vh;
+    background: #fff;
+  }
+
+  .sidebar {
+    width: 220px;
+    background-color: #fa936c;
+    padding: 1rem;
+    color: white;
+  }
+
+  .sidebar-nav a {
+    display: block;
+    color: white;
+    padding: 10px 0;
+    text-decoration: none;
+  }
+
+  .sidebar-nav a.active {
+    background-color: #f47e3e;
+    border-radius: 4px;
+    padding-left: 10px;
+  }
+
+  .forums-main {
+    flex: 1;
+    padding: 2.5rem 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .forums-content {
+    max-width: 960px;
+    width: 100%;
+    text-align: center;
+  }
+
+  .forums-content h1 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+
+  #forum-form {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+  }
+
+  #forum-form input {
+    flex: 1;
+    max-width: 400px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+  }
+
+  #forum-form button {
+    background-color: #fa936c;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+
+  #forum-form button:hover {
+    background-color: #f47e3e;
+  }
+
+  .forums-container {
+    display: grid;
+    gap: 1.5rem;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .forum-card {
+    background: #fff;
+    padding: 1.2rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    text-align: left;
+  }
+
+  .forum-card h3 {
+    font-size: 1.2rem;
+    color: #333;
+    margin-bottom: 0.4rem;
+  }
+
+  .forum-card p {
+    font-size: 0.9rem;
+    color: #666;
+  }
+</style>
