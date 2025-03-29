@@ -22,8 +22,9 @@ app.use(session({
 // ==========================
 // 🖼️ View Engine (EJS)
 // ==========================
+const path = require('path');
 app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views/Pages'));
+app.set('views', path.join(__dirname, 'views/Pages')); // Correct path to the Pages directory
 
 // ==========================
 // 📁 Static Assets
@@ -43,7 +44,9 @@ app.use('/api', createProxyMiddleware({
 // ==========================
 
 // Landing page
-app.get('/', (req, res) => res.render('landing'));
+app.get('/', (req, res) => {
+  res.render('landing'); // Don't include 'pages/' here as it's already set in the views path
+});
 
 // Register page
 app.get('/register', (req, res) => res.render('pages/register'));
