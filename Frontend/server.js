@@ -23,7 +23,7 @@ app.use(session({
 // 🖼️ View Engine (EJS)
 // ==========================
 app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
+app.set('views', path.join(__dirname, 'views/Pages'));
 
 // ==========================
 // 📁 Static Assets
@@ -43,7 +43,7 @@ app.use('/api', createProxyMiddleware({
 // ==========================
 
 // Landing page
-app.get('/', (req, res) => res.render('pages/landing'));
+app.get('/', (req, res) => res.render('landing'));
 
 // Register page
 app.get('/register', (req, res) => res.render('pages/register'));
