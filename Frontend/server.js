@@ -33,11 +33,11 @@ app.use('/assets', express.static(path.join(__dirname, 'assets')));
 // ==========================
 // 🔁 Proxy API to Flask
 // ==========================
+// Proxy API requests to the Flask backend
 app.use('/api', createProxyMiddleware({
-  target: 'http://127.0.0.1:5000',
+  target: 'http://54.165.254.61:5000', // Your backend's public IP and port
   changeOrigin: true
 }));
-
 // ==========================
 // 🌐 Routes
 // ==========================
