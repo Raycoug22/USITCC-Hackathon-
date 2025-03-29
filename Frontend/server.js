@@ -35,7 +35,7 @@ app.use('/assets', express.static(path.join(__dirname, 'assets')));
 // ==========================
 // Proxy API requests to the Flask backend
 app.use('/api', createProxyMiddleware({
-  target: 'http://54.165.254.61:5000', // Your backend's public IP and port
+  target: 'http://54.165.254.61:5000', // The public IP of your Flask server EC2 instance
   changeOrigin: true
 }));
 // ==========================
