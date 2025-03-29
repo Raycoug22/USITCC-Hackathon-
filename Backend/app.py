@@ -196,6 +196,21 @@ def join_group():
         cursor.close()
         conn.close()
 
+@app.route('/api/groups/<int:group_id>/users', methods=['GET'])
+def get_users_in_group(group_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT u.User_ID, u.Username, u.Email
+        FROM Users u
+        JOIN Users_Groups ug ON u.User_ID = ug.User_ID
+        WHERE ug.Group_ID = %s
+    """, (group_id,))
+    users = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return jsonify(users)
+
 # ---------- FORUMS ----------
 @app.route('/api/forums/<int:group_id>', methods=['GET'])
 def get_forums(group_id):

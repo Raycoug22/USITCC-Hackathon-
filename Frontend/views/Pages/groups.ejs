@@ -24,7 +24,6 @@
 
 <%- include('../partials/footer') %>
 
-
 <script>
   const userId = document.querySelector('.groups-main').dataset.userId;
 
@@ -34,13 +33,23 @@
       const groups = await response.json();
 
       const container = document.getElementById('group-list');
-      container.innerHTML = groups.map(group => `
-        <div class="group-card">
-          <h3>${group.Name}</h3>
-          <p>${group.Description || 'No description available.'}</p>
-          <button onclick="joinGroup(${group.Group_ID})">Join</button>
-        </div>
-      `).join('');
+      container.innerHTML = await Promise.all(groups.map(async group => {
+        // Fetch users for each group
+        const usersResponse = await fetch(`http://127.0.0.1:5000/api/groups/${group.Group_ID}/users`);
+        const users = await usersResponse.json();
+
+        return `
+          <div class="group-card">
+            <h3>${group.Name}</h3>
+            <p>${group.Description || 'No description available.'}</p>
+            <button onclick="joinGroup(${group.Group_ID})">Join</button>
+            <h4>Members:</h4>
+            <ul>
+              ${users.map(user => `<li>${user.Username} - ${user.Email}</li>`).join('')}
+            </ul>
+          </div>
+        `;
+      }));
     } catch (err) {
       console.error('Error fetching groups:', err.message);
     }
